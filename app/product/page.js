@@ -52,7 +52,6 @@ export default function Checkout() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentCurrency, setCurrentCurrency] = useState(COUNTRY_CURRENCY_MAP['India']);
     const [convertedAmount, setConvertedAmount] = useState(0);
-    const [paymentSuccess, setPaymentSuccess] = useState(false);
     const [orderNumber, setOrderNumber] = useState(1);
     const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
@@ -195,7 +194,15 @@ export default function Checkout() {
 
                         const result = await formResponse.json();
                         if (result.success) {
-                            setPaymentSuccess(true);
+                            // Navigate to thank you page with order details
+                            const params = new URLSearchParams({
+                                orderNumber: orderNumber,
+                                customerName: `${formData.firstName} ${formData.lastName}`,
+                                email: formData.email,
+                                amount: `${currentCurrency.symbol} ${convertedAmount}`,
+                                paymentMethod: "Online Payment (Razorpay)"
+                            });
+                            router.push(`/thank-you?${params.toString()}`);
                         } else {
                             throw new Error("Failed to submit order details");
                         }
@@ -271,7 +278,15 @@ export default function Checkout() {
 
                     const result = await response.json();
                     if (result.success) {
-                        setPaymentSuccess(true);
+                        // Navigate to thank you page with order details
+                        const params = new URLSearchParams({
+                            orderNumber: orderNumber,
+                            customerName: `${formData.firstName} ${formData.lastName}`,
+                            email: formData.email,
+                            amount: `${currentCurrency.symbol} ${convertedAmount}`,
+                            paymentMethod: "Cash on Delivery"
+                        });
+                        router.push(`/thank-you?${params.toString()}`);
                     } else {
                         throw new Error("Failed to submit order details");
                     }
@@ -287,37 +302,6 @@ export default function Checkout() {
             }
         }
     };
-
-    if (paymentSuccess) {
-        return (
-            <div className="flex relative bg-white min-h-screen">
-                <div className='fixed left-0 top-0 w-1/5 h-screen bg-transparent z-[999]'>
-                    <Navbar />
-                </div>
-                <div className="flex-1 ml-[0%] md:ml-[20%] flex items-center justify-center">
-                    <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-                        <div className="bg-green-50 rounded-lg p-8 border border-green-200">
-                            <h2 className="text-3xl font-bold text-green-600 mb-4">
-                                Order Successful!
-                            </h2>
-                            <p className="text-gray-600 mb-2">
-                                Order Number: {orderNumber}
-                            </p>
-                            <p className="text-gray-600 mb-6">
-                                Thank you for your purchase!
-                            </p>
-                            <Button
-                                onClick={() => router.push('/')}
-                                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-                            >
-                                Continue Shopping
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="flex relative bg-white min-h-screen overflow-hidden">
