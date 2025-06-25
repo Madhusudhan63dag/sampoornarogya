@@ -1,4 +1,4 @@
-// File: D:\ISN\sampurna\app\product\page.js
+// File: D:\ISN\sampoornarogya\app\product\page.js
 import * as entry from '../../../../app/product/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
