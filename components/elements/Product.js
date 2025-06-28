@@ -155,8 +155,9 @@ export default function Product() {
 
                                 {/* Buy on Amazon Button */}
                                 <Button
+                                    id="amazon"
                                     onClick={handleBuyOnAmazon}
-                                    className="w-full bg-gradient-to-r from-[#FF9900] to-[#FF7A00] hover:from-[#FF7A00] hover:to-[#FF5500] text-white py-3 rounded-lg text-lg mb-6 flex items-center justify-center gap-2 transform transition-all duration-300 hover:scale-[1.02]"
+                                    className="amazon w-full bg-gradient-to-r from-[#FF9900] to-[#FF7A00] hover:from-[#FF7A00] hover:to-[#FF5500] text-white py-3 rounded-lg text-lg mb-6 flex items-center justify-center gap-2 transform transition-all duration-300 hover:scale-[1.02]"
                                 >
                                     <FaAmazon className="w-5 h-5" />
                                     Buy on Amazon

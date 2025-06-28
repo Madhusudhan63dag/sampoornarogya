@@ -108,12 +108,10 @@ export default function Contact() {
     };
 
     return (
-        <div className="flex relative bg-white min-h-screen">
-            <div className='fixed left-0 top-0 w-1/5 h-screen bg-transparent z-[999]'>
-                <Navbar />
-            </div>
+        <div className="relative bg-white min-h-screen">
+            <Navbar />
 
-            <div className="flex-1 ml-[0%] md:ml-[21%]">
+            <div className="w-full pt-16">
                 <div className="max-w-7xl mx-auto px-4 py-12">
                     <div className="text-center mb-12">
                         <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>

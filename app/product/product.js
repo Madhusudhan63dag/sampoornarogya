@@ -10,17 +10,25 @@ import product4 from '../../assets/8.jpg'; // Add more product images
 import { Star, Minus, Plus, ShoppingCart, ExternalLink } from 'lucide-react';
 import { FaAmazon } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
+import amazon from '../../assets/amazon.webp';
+import buy from '../../assets/buy.png';
+
+const BACKEND_URL = 'https://razorpaybackend-wgbh.onrender.com'; // Your backend URL
+
 
 export default function Product() {
     const [quantity, setQuantity] = useState(1);
     const [gradientPosition, setGradientPosition] = useState(0);
     const [selectedImage, setSelectedImage] = useState(0);
+    const [showAdvancePayment, setShowAdvancePayment] = useState(false);
+    const [advanceAmount, setAdvanceAmount] = useState(1000); // Default advance amount
+    const [razorpayLoaded, setRazorpayLoaded] = useState(false);
     const router = useRouter();
 
     // Product details with multiple images
     const product = {
         name: "Sampoorna Digestive Health Supplement",
-        price: 3999.00,
+        price: 3990.00,
         images: [product1, product2, product3, product4],
         description: "A natural supplement that promotes digestive health and overall wellness. Made with premium Ayurvedic ingredients.",
         features: [
@@ -41,6 +49,9 @@ export default function Product() {
     };
 
     const handleAddToCart = () => {
+        // Store the selected quantity in localStorage so the checkout form can use it
+        localStorage.setItem('selectedQuantity', quantity.toString());
+        
         const formSection = document.getElementById('submit');
         if (formSection) {
             formSection.scrollIntoView({ behavior: 'smooth' });
@@ -51,6 +62,228 @@ export default function Product() {
         // Replace with your actual Amazon product URL
         const amazonUrl = "https://www.amazon.in/dp/B0DXV5TZ1P"; // Update with your Amazon product link
         window.open(amazonUrl, '_blank');
+    };
+
+    // Load Razorpay script
+    useEffect(() => {
+        const loadRazorpay = async () => {
+            if (window.Razorpay) {
+                setRazorpayLoaded(true);
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.async = true;
+            script.onload = () => setRazorpayLoaded(true);
+            script.onerror = () => console.error('Failed to load Razorpay');
+            document.body.appendChild(script);
+        };
+
+        loadRazorpay();
+    }, []);
+
+    const handleAdvancePayment = async () => {
+        if (!razorpayLoaded) {
+            alert('Payment system is loading. Please try again in a moment.');
+            return;
+        }
+
+        try {
+            const orderNumber = `ADV${Date.now()}${Math.floor(Math.random() * 1000)}`;
+            
+            // Create order for advance payment
+            const orderResponse = await fetch(`${BACKEND_URL}/create-order`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: advanceAmount,
+                    currency: 'INR',
+                    receipt: orderNumber,
+                    notes: {
+                        paymentType: 'advance',
+                        productName: product.name,
+                        quantity: quantity,
+                        totalAmount: product.price * quantity,
+                        advanceAmount: advanceAmount,
+                        balanceAmount: (product.price * quantity) - advanceAmount
+                    }
+                })
+            });
+
+            if (!orderResponse.ok) {
+                throw new Error('Failed to create advance payment order');
+            }
+
+            const orderData = await orderResponse.json();
+            
+            const options = {
+                key: orderData.key,
+                amount: orderData.order.amount,
+                currency: orderData.order.currency,
+                name: 'Sampoorna Arogya',
+                description: `Advance Payment for ${product.name}`,
+                order_id: orderData.order.id,
+                handler: async function (response) {
+                    try {
+                        // Verify advance payment
+                        const verifyResponse = await fetch(`${BACKEND_URL}/verify-payment`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature
+                            })
+                        });
+
+                        const verifyResult = await verifyResponse.json();
+                        
+                        if (verifyResult.success) {
+                            // Show success message and redirect to form
+                            alert(`Advance payment of ₹${advanceAmount} successful! Please fill your details to complete the order.`);
+                            
+                            // Store advance payment details in localStorage for the checkout form
+                            localStorage.setItem('advancePaymentDetails', JSON.stringify({
+                                orderNumber: orderNumber,
+                                paymentId: response.razorpay_payment_id,
+                                advanceAmount: advanceAmount,
+                                totalAmount: product.price * quantity,
+                                balanceAmount: (product.price * quantity) - advanceAmount,
+                                productName: product.name,
+                                quantity: quantity
+                            }));
+                            
+                            // Navigate to checkout form
+                            router.push('/product?advance=true');
+                        } else {
+                            throw new Error('Payment verification failed');
+                        }
+                    } catch (error) {
+                        console.error('Advance payment verification error:', error);
+                        alert('Payment verification failed. Please contact support.');
+                    }
+                },
+                modal: {
+                    ondismiss: function () {
+                        console.log('Advance payment modal dismissed');
+                    }
+                },
+                theme: {
+                    color: '#43c3ff'
+                }
+            };
+
+            const razorpayInstance = new window.Razorpay(options);
+            razorpayInstance.open();
+            
+        } catch (error) {
+            console.error('Advance payment error:', error);
+            alert('Failed to initialize advance payment. Please try again.');
+        }
+    };
+
+    const handleQuickBuy = async () => {
+        if (!razorpayLoaded) {
+            alert('Payment system is loading. Please try again in a moment.');
+            return;
+        }
+
+        try {
+            const orderNumber = `QBY${Date.now()}${Math.floor(Math.random() * 1000)}`;
+            const totalAmount = product.price * quantity;
+            
+            // Create order for quick buy
+            const orderResponse = await fetch(`${BACKEND_URL}/create-order`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: totalAmount,
+                    currency: 'INR',
+                    receipt: orderNumber,
+                    notes: {
+                        paymentType: 'full',
+                        productName: product.name,
+                        quantity: quantity
+                    }
+                })
+            });
+
+            if (!orderResponse.ok) {
+                throw new Error('Failed to create quick buy order');
+            }
+
+            const orderData = await orderResponse.json();
+            
+            const options = {
+                key: orderData.key,
+                amount: orderData.order.amount,
+                currency: orderData.order.currency,
+                name: 'Sampoorna Arogya',
+                description: `Quick Buy - ${product.name}`,
+                order_id: orderData.order.id,
+                handler: async function (response) {
+                    try {
+                        // Verify payment
+                        const verifyResponse = await fetch(`${BACKEND_URL}/verify-payment`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature
+                            })
+                        });
+
+                        const verifyResult = await verifyResponse.json();
+                        
+                        if (verifyResult.success) {
+                            alert('Payment successful! Please fill your shipping details.');
+                            
+                            // Store payment details for the form
+                            localStorage.setItem('quickBuyDetails', JSON.stringify({
+                                orderNumber: orderNumber,
+                                paymentId: response.razorpay_payment_id,
+                                totalAmount: totalAmount,
+                                productName: product.name,
+                                quantity: quantity
+                            }));
+                            
+                            // Navigate to checkout form
+                            router.push('/product?quickbuy=true');
+                        } else {
+                            throw new Error('Payment verification failed');
+                        }
+                    } catch (error) {
+                        console.error('Quick buy verification error:', error);
+                        alert('Payment verification failed. Please contact support.');
+                    }
+                },
+                modal: {
+                    ondismiss: function () {
+                        console.log('Quick buy modal dismissed');
+                    }
+                },
+                theme: {
+                    color: '#43c3ff'
+                }
+            };
+
+            const razorpayInstance = new window.Razorpay(options);
+            razorpayInstance.open();
+            
+        } catch (error) {
+            console.error('Quick buy error:', error);
+            alert('Failed to initialize quick buy. Please try again.');
+        }
     };
 
     useEffect(() => {
@@ -139,25 +372,21 @@ export default function Product() {
                                     </Button>
                                 </div>
 
-                                {/* Add to Cart Button */}
-                                <Button
-                                    onClick={handleAddToCart}
-                                    className="w-full bg-[#43c3ff] hover:bg-[#43c3ff]/90 text-white py-3 rounded-lg text-lg mb-4 flex items-center justify-center gap-2"
-                                >
-                                    <ShoppingCart className="w-5 h-5" />
-                                    Add to Cart - ₹{(product.price * quantity).toFixed(2)}
-                                </Button>
+                                {/* Payment Options */}
+                                <div className="space-y-3 mb-6">
+                                    {/* Regular Add to Cart */}
+                                    <Button
+                                        onClick={handleAddToCart} className="w-full bg-[#FACC15] hover:bg-white text-[#42C056] py-10 rounded-lg text-lg flex items-center justify-center gap-2">
+                                        <Image src={buy} alt="Buy Now" className="w-10 h-10" />
+                                        Buy Now
+                                    </Button>
 
-                                {/* Buy on Amazon Button */}
-                                <Button
-                                    id="amazon"
-                                    onClick={handleBuyOnAmazon}
-                                    className="w-full bg-gradient-to-r from-[#FF9900] to-[#FF7A00] hover:from-[#FF7A00] hover:to-[#FF5500] text-white py-3 rounded-lg text-lg mb-6 flex items-center justify-center gap-2 transform transition-all duration-300 hover:scale-[1.02]"
-                                >
-                                    <FaAmazon className="w-5 h-5" />
-                                    Buy on Amazon
-                                    <ExternalLink className="w-4 h-4" />
-                                </Button>
+                                    {/* Buy on Amazon Button */}
+                                    <Button id="amazon" onClick={handleBuyOnAmazon} className="amazon w-full py-8 bg-white hover:bg-white text-black rounded-lg text-lg flex items-center justify-center gap-2 transform transition-all duration-300">
+                                        <Image src={amazon} alt="Buy on Amazon" className="w-12" />
+                                        Amazon
+                                    </Button>
+                                </div>
                             </div>
 
                             {/* Features */}

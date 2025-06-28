@@ -61,14 +61,12 @@ export default function TermsConditions() {
     }, []);
 
     return (
-        <div className="flex relative bg-white min-h-screen">
+        <div className="relative bg-white min-h-screen">
             {/* Navbar */}
-            <div className='fixed left-0 top-0 w-1/5 h-screen bg-transparent z-[999]'>
-                <Navbar />
-            </div>
+            <Navbar />
 
             {/* Main Content */}
-            <div className="flex-1 ml-[0%] md:ml-[21%]">
+            <div className="w-full pt-16">
                 <div className="max-w-4xl mx-auto px-4 py-16">
                     {/* Header with gradient */}
                     <div className="relative mb-12 p-8 rounded-lg overflow-hidden">

@@ -1,15 +1,11 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useInView } from 'react-intersection-observer';
+import { useRouter, usePathname } from 'next/navigation';
 import Navbar from '@/components/elements/Navbar';
 import { Button } from "@/components/ui/button"
 import logo from '../just_logo.png'
 
-
-// Use a placeholder image for now - to be replaced later
-import aboutHero from '../../assets/test/1920x1281_1.jpg';
 import aboutBanner1 from '../../assets/test/1400x400.jpg';
 import aboutBanner2 from '../../assets/test/1400x400_1.jpg';
 import img1 from '../../assets/3.jpg';
@@ -20,15 +16,11 @@ import Footer from '@/components/elements/Footer';
 
 export default function About() {
     const router = useRouter();
+    const pathname = usePathname();
     const videoRef = useRef(null);
     const [isVideoPlaying, setIsVideoPlaying] = useState(false);
     const [gradientPosition, setGradientPosition] = useState(0);
 
-    // Animation hooks
-    const [sectionRef, sectionInView] = useInView({
-        triggerOnce: true,
-        threshold: 0.2
-    });
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -38,80 +30,24 @@ export default function About() {
         return () => clearInterval(interval);
     }, []);
 
-    // Video control functions
-    const handleVideoControl = () => {
-        const iframe = videoRef.current;
-        const player = iframe.contentWindow;
-
-        if (isVideoPlaying) {
-            player.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-        } else {
-            player.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-        }
-    };
-
-    // Fix the path checking in getDisplayText
-    const getDisplayText = (section) => {
-        if (section === 'product') {
-            return pathname === '/product' ? 'Home' : 'Product';
-        } else if (section === 'about') {
-            return pathname === '/about' ? 'Home' : 'About';
-        }
-    };
-
     return (
-        <div className="flex relative min-h-screen">
+        <div className="relative min-h-screen">
             {/* Navbar */}
-            <div className='fixed left-0 top-0 md:w-1/5 w-full h-auto md:h-screen bg-transparent z-[999]'>
-                <Navbar />
-            </div>
+            <Navbar />
 
             {/* Main Content */}
-            <div className="flex-1 md:ml-[21%] ml-0 mt-[60px] md:mt-0">
+            <div className="w-full relative">
                 {/* Hero Section */}
-                <section className='relative w-full h-[30vh] md:h-[50vh]'>
-                    <div className="absolute inset-0">
+                <section className='relative w-full'>
+                    {/* Banner Image */}
+                    <div className="w-full h-full">
                         <Image
                             src={aboutBanner1}
                             alt="About Us Hero"
                             fill
                             priority
-                            className="object-fit"
+                            className="object-contain"
                         />
-                    </div>
-
-                    {/* Content Container with Header */}
-                    <div className='relative z-10 w-full h-full flex flex-col mx-auto px-4 md:px-8'>
-                        {/* Header */}
-                        <header className='w-full flex justify-between items-center py-4 md:py-8'>
-                            <div className='flex items-center'>
-                                <Image
-                                    src={logo}
-                                    alt="Sampoorna Arogya Logo"
-                                    className='w-12 md:w-32 hidden md:block h-auto relative z-10'
-                                    priority
-                                />
-                            </div>
-                            {/* Navigation - Desktop only */}
-                            <nav className='flex items-center'>
-                                <Button
-                                    onClick={() => router.push('/product')}
-                                    className="bg-[#6CFC6C] hover:bg-[#43c3ff] text-black px-4 py-2 md:px-10 md:py-7 rounded-full transition-all duration-300 text-sm md:text-xl whitespace-nowrap"
-                                >
-                                    Order Now
-                                </Button>
-                            </nav>
-                        </header>
-
-                        {/* Hero Content */}
-                        <div className="flex-1 flex flex-col justify-end items-center px-4">
-                            <h1 className="text-4xl md:text-3xl font-bold text-black text-center mb-6">
-                                Step into a Healthier Life with Sampoorna Arogya
-                            </h1>
-                            <p className="text-lg md:text-xl text-black text-center max-w-2xl">
-                                Redefining digestive health through the power of Ayurveda.
-                            </p>
-                        </div>
                     </div>
                 </section>
 
@@ -124,9 +60,9 @@ export default function About() {
                                 <div className="relative h-[600px] md:h-[500px] rounded-2xl overflow-hidden">
                                     <Image
                                         src={img1}
-                                        alt="Sampoorn Arogya Syrup - Natural Digestive Health Solution"  // Improved alt text
+                                        alt="Sampoorn Arogya Syrup - Natural Digestive Health Solution"
                                         fill
-                                        className="object-fit"  // Add missing object-fit class
+                                        className="object-cover"
                                     />
                                 </div>
                             </div>
@@ -164,9 +100,9 @@ export default function About() {
                                 <div className="relative h-[600px] md:h-[500px] rounded-2xl overflow-hidden">
                                     <Image
                                         src={img2}
-                                        alt="Sampoorn Arogya Tablets - Herbal Digestive Supplement"  // Improved alt text
+                                        alt="Sampoorn Arogya Tablets - Herbal Digestive Supplement"
                                         fill
-                                        className="object-fit"  // Add missing object-fit class
+                                        className="object-cover"
                                     />
                                 </div>
                             </div>

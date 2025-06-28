@@ -11,13 +11,13 @@ export default function FloatingAmazonButton() {
     };
 
     return (
-        <div className="fixed bottom-10 right-6 z-50">
+        <div className="fixed bottom-20 right-6 z-50">
             <button
                 id="amazon"
                 onClick={handleAmazonClick}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                className="bg-gradient-to-r from-[#FF9900] to-[#FF7A00] hover:from-[#FF7A00] hover:to-[#FF5500] text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 group"
+                className=" amazon bg-gradient-to-r from-[#FF9900] to-[#FF7A00] hover:from-[#FF7A00] hover:to-[#FF5500] text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 group"
                 aria-label="Buy on Amazon"
             >
                 <FaAmazon className="w-6 h-6" />

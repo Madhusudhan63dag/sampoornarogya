@@ -8,44 +8,6 @@ import six from '@/assets/t_six.jpeg'
 import seven from '@/assets/t_seven.jpeg'
 
 export default function AwardsSection() {
-  // const awards = [
-  //   {
-  //     title: "GMP Certified",
-  //     image: one,
-  //     description: "Good Manufacturing Practice Certified"
-  //   },
-  //   {
-  //     title: "ISO 9001:2015",
-  //     image: two,
-  //     description: "Quality Management System"
-  //   },
-  //   {
-  //     title: "Made in India",
-  //     image: three,
-  //     description: "100% Natural Ingredients and Made in India"
-  //   },
-  //   {
-  //     title: "FSSAI Certified",
-  //     image: four,
-  //     description: "Food Safety Certification",
-  //     customSize: true // Add this flag for FSSAI certificate
-  //   },
-  //   {
-  //     title: "Halal Certified",
-  //     image: five,
-  //     description: "Halal Certification"
-  //   },
-  //   {
-  //     title: "Quality Assured",
-  //     image: six,
-  //     description: "Premium Quality Products"
-  //   },
-  //   {
-  //     title: "Research Backed",
-  //     image: seven,
-  //     description: "Scientifically Proven Results"
-  //   }
-  // ];
   const awards = [
     {
       title: "GMP Certified",

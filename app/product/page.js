@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';  // Changed from 'next/router'
 import { Button } from "@/components/ui/button"
 import Navbar from '@/components/elements/Navbar';
 import product1 from '../../assets/1.jpg';
-import { Minus, Plus } from 'lucide-react';
+import { FiMinus, FiPlus } from 'react-icons/fi';
 import visa from '../../assets/visa.svg';  // You'll need to add these images
 import mastercard from '../../assets/mastercard.svg';
 import rupay from '../../assets/upi-id.jpeg';
@@ -32,7 +32,7 @@ const COUNTRY_CURRENCY_MAP = {
     // ...add more countries as needed
 };
 
-const RAZORPAY_KEY = 'rzp_live_tGJjXr7rvi6keg'; // Replace with your actual key  rzp_live_tGJjXr7rvi6keg
+const BACKEND_URL = 'https://razorpaybackend-wgbh.onrender.com'; // Your backend URL
 
 export default function Checkout() {
     const router = useRouter();
@@ -52,14 +52,25 @@ export default function Checkout() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentCurrency, setCurrentCurrency] = useState(COUNTRY_CURRENCY_MAP['India']);
     const [convertedAmount, setConvertedAmount] = useState(0);
-    const [orderNumber, setOrderNumber] = useState(1);
+    const [orderNumber, setOrderNumber] = useState(null);
     const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+    const [phoneError, setPhoneError] = useState('');
 
     const product = {
         name: "Sampoorna Digestive Health Supplement",
-        price: 3999.00,
+        price: 3990.00,
         description: "A natural supplement for digestive health"
     };
+
+    // Generate order number on component mount
+    useEffect(() => {
+        const generateOrderNumber = () => {
+            const timestamp = Date.now();
+            const random = Math.floor(Math.random() * 1000);
+            return `ORD${timestamp}${random}`;
+        };
+        setOrderNumber(generateOrderNumber());
+    }, []);
 
     useEffect(() => {
         // Calculate initial converted amount
@@ -105,6 +116,20 @@ export default function Checkout() {
         loadRazorpay();
     }, []);
 
+    // Add this useEffect after the existing useEffects to initialize quantity from product selection
+    useEffect(() => {
+        // Check if quantity was selected from the product component
+        const selectedQuantity = localStorage.getItem('selectedQuantity');
+        if (selectedQuantity) {
+            const parsedQuantity = parseInt(selectedQuantity, 10);
+            if (parsedQuantity > 0) {
+                setQuantity(parsedQuantity);
+            }
+            // Clear the stored quantity after using it
+            localStorage.removeItem('selectedQuantity');
+        }
+    }, []);
+
     const handleQuantityChange = (action) => {
         if (action === 'increase') {
             setQuantity(prev => prev + 1);
@@ -115,6 +140,30 @@ export default function Checkout() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        
+        // Special handling for phone number
+        if (name === 'phone') {
+            // Remove any non-digit characters for validation
+            const digitsOnly = value.replace(/\D/g, '');
+            
+            if (digitsOnly.length > 10) {
+                setPhoneError('Phone number cannot exceed 10 digits');
+                // Navigate to phone field
+                setTimeout(() => {
+                    const phoneField = document.querySelector('input[name="phone"]');
+                    if (phoneField) {
+                        phoneField.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                        phoneField.focus();
+                    }
+                }, 100);
+            } else {
+                setPhoneError('');
+            }
+        }
+        
         setFormData(prev => ({
             ...prev,
             [name]: value
@@ -130,7 +179,28 @@ export default function Checkout() {
         if (!formData.firstName) errors.firstName = 'First name is required';
         if (!formData.lastName) errors.lastName = 'Last name is required';
         if (!formData.email) errors.email = 'Email is required';
-        if (!formData.phone) errors.phone = 'Phone is required';
+        if (!formData.phone) {
+            errors.phone = 'Phone is required';
+        } else {
+            const digitsOnly = formData.phone.replace(/\D/g, '');
+            if (digitsOnly.length > 10) {
+                errors.phone = 'Phone number cannot exceed 10 digits';
+                setPhoneError('Phone number cannot exceed 10 digits');
+                // Navigate to phone field
+                setTimeout(() => {
+                    const phoneField = document.querySelector('input[name="phone"]');
+                    if (phoneField) {
+                        phoneField.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                        phoneField.focus();
+                    }
+                }, 100);
+            } else if (digitsOnly.length < 10) {
+                errors.phone = 'Phone number must be 10 digits';
+            }
+        }
         if (!formData.streetAddress) errors.streetAddress = 'Address is required';
         if (!formData.townCity) errors.townCity = 'City is required';
         if (!formData.paymentMode) errors.paymentMode = 'Please select a payment method';
@@ -143,90 +213,153 @@ export default function Checkout() {
                 ...prev,
                 payment: 'Payment system is still loading. Please try again.'
             }));
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (!orderNumber) {
+            setFormErrors(prev => ({
+                ...prev,
+                payment: 'Order number generation failed. Please refresh and try again.'
+            }));
+            setIsSubmitting(false);
             return;
         }
 
         try {
+            // Step 1: Create Razorpay order via backend
+            const orderResponse = await fetch(`${BACKEND_URL}/create-order`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: convertedAmount,
+                    currency: currentCurrency.currency,
+                    receipt: orderNumber,
+                    notes: {
+                        customerName: `${formData.firstName} ${formData.lastName}`,
+                        email: formData.email,
+                        phone: formData.phone,
+                        productName: product.name,
+                        quantity: quantity
+                    }
+                })
+            });
+
+            if (!orderResponse.ok) {
+                throw new Error('Failed to create order');
+            }
+
+            const orderData = await orderResponse.json();
+            
             const options = {
-                key: RAZORPAY_KEY,
-                amount: Math.round(convertedAmount * 100),
-                currency: currentCurrency.currency,
+                key: orderData.key,
+                amount: orderData.order.amount,
+                currency: orderData.order.currency,
                 name: 'Sampoorna Arogya',
                 description: `Order for ${product.name}`,
+                order_id: orderData.order.id,
                 prefill: {
                     name: `${formData.firstName} ${formData.lastName}`,
                     email: formData.email,
                     contact: formData.phone
                 },
                 handler: async function (response) {
+                    console.log('Razorpay payment successful:', response);
+                    
                     try {
-                        const formattedData = {
-                            _subject: `New Order #${orderNumber} - Online Payment`,
-                            _template: "table",
-                            _captcha: "false",
-                            orderNumber: orderNumber,
-                            orderDate: new Date().toISOString(),
-                            customerName: `${formData.firstName} ${formData.lastName}`,
-                            email: formData.email,
-                            phone: formData.phone,
-                            shippingAddress: `${formData.streetAddress}, ${formData.apartment || ''}, ${formData.townCity}, ${formData.country}`,
-                            productName: product.name,
-                            quantity: quantity,
-                            amount: `${currentCurrency.symbol} ${convertedAmount}`,
-                            paymentMethod: "Online Payment (Razorpay)",
-                            paymentId: response.razorpay_payment_id,
-                            orderStatus: "Paid"
-                        };
-
-                        // Send order details to your endpoint
-                        const formResponse = await fetch('https://formsubmit.co/ajax/israelitesshopping171@gmail.com', {
+                        // Step 2: Verify payment via backend
+                        const verifyResponse = await fetch(`${BACKEND_URL}/verify-payment`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'Accept': 'application/json'
                             },
-                            body: JSON.stringify(formattedData)
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature
+                            })
                         });
 
-                        if (!formResponse.ok) {
-                            throw new Error(`HTTP error! status: ${formResponse.status}`);
-                        }
+                        const verifyResult = await verifyResponse.json();
+                        
+                        if (verifyResult.success) {
+                            // Step 3: Send order confirmation email
+                            const orderDetails = {
+                                orderNumber: orderNumber,
+                                productName: product.name,
+                                quantity: quantity,
+                                totalAmount: convertedAmount,
+                                currency: currentCurrency.symbol,
+                                paymentMethod: "Online Payment (Razorpay)",
+                                paymentId: response.razorpay_payment_id
+                            };
 
-                        const result = await formResponse.json();
-                        if (result.success) {
-                            // Navigate to thank you page with order details
+                            const customerDetails = {
+                                firstName: formData.firstName,
+                                lastName: formData.lastName,
+                                email: formData.email,
+                                phone: formData.phone,
+                                address: formData.streetAddress,
+                                apartment: formData.apartment,
+                                city: formData.townCity,
+                                country: formData.country
+                            };
+
+                            // Send confirmation email
+                            await fetch(`${BACKEND_URL}/send-order-confirmation`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    customerEmail: formData.email,
+                                    orderDetails: orderDetails,
+                                    customerDetails: customerDetails
+                                })
+                            });
+
+                            // Navigate to thank you page
                             const params = new URLSearchParams({
                                 orderNumber: orderNumber,
                                 customerName: `${formData.firstName} ${formData.lastName}`,
                                 email: formData.email,
                                 amount: `${currentCurrency.symbol} ${convertedAmount}`,
-                                paymentMethod: "Online Payment (Razorpay)"
+                                paymentMethod: "Online Payment (Razorpay)",
+                                paymentId: response.razorpay_payment_id
                             });
+                            console.log('Navigating to thank you page with params:', params.toString());
                             router.push(`/thank-you?${params.toString()}`);
                         } else {
-                            throw new Error("Failed to submit order details");
+                            throw new Error('Payment verification failed');
                         }
+                        
                     } catch (error) {
-                        console.error("Order submission error:", error);
+                        console.error("Order processing error:", error);
                         setFormErrors(prev => ({
                             ...prev,
-                            submit: "Payment successful but failed to send order details. Please contact support."
+                            payment: 'Payment successful but order processing failed. Please contact support.'
                         }));
-                    } finally {
                         setIsSubmitting(false);
                     }
                 },
                 modal: {
                     ondismiss: function () {
+                        console.log('Razorpay modal dismissed');
                         setIsSubmitting(false);
                     }
+                },
+                theme: {
+                    color: '#43c3ff'
                 }
             };
 
             const razorpayInstance = new window.Razorpay(options);
             razorpayInstance.open();
+            
         } catch (error) {
-            console.error('Razorpay initialization error:', error);
+            console.error('Payment initialization error:', error);
             setFormErrors(prev => ({
                 ...prev,
                 payment: 'Failed to initialize payment. Please try again.'
@@ -242,54 +375,74 @@ export default function Checkout() {
 
         if (Object.keys(errors).length === 0) {
             setIsSubmitting(true);
+            setFormErrors({});
+
+            if (!orderNumber) {
+                setFormErrors(prev => ({
+                    ...prev,
+                    submit: 'Order number generation failed. Please refresh and try again.'
+                }));
+                setIsSubmitting(false);
+                return;
+            }
+
             try {
                 if (formData.paymentMode === 'online') {
                     await handleRazorpayPayment();
                 } else if (formData.paymentMode === 'cod') {
-                    const formattedData = {
-                        _subject: `New Order #${orderNumber} - Cash on Delivery`,
-                        _template: "table",
-                        _captcha: "false",
+                    // Handle COD order
+                    const orderDetails = {
                         orderNumber: orderNumber,
-                        orderDate: new Date().toISOString(),
-                        customerName: `${formData.firstName} ${formData.lastName}`,
-                        email: formData.email,
-                        phone: formData.phone,
-                        shippingAddress: `${formData.streetAddress}, ${formData.apartment || ''}, ${formData.townCity}, ${formData.country}`,
                         productName: product.name,
                         quantity: quantity,
-                        amount: `${currentCurrency.symbol} ${convertedAmount}`,
-                        paymentMethod: "Cash on Delivery",
-                        orderStatus: "Pending"
+                        totalAmount: convertedAmount,
+                        currency: currentCurrency.symbol,
+                        paymentMethod: "Cash on Delivery"
                     };
 
-                    const response = await fetch('https://formsubmit.co/ajax/israelitesshopping171@gmail.com', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(formattedData)
-                    });
+                    const customerDetails = {
+                        firstName: formData.firstName,
+                        lastName: formData.lastName,
+                        email: formData.email,
+                        phone: formData.phone,
+                        address: formData.streetAddress,
+                        apartment: formData.apartment,
+                        city: formData.townCity,
+                        country: formData.country
+                    };
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    if (result.success) {
-                        // Navigate to thank you page with order details
-                        const params = new URLSearchParams({
-                            orderNumber: orderNumber,
-                            customerName: `${formData.firstName} ${formData.lastName}`,
-                            email: formData.email,
-                            amount: `${currentCurrency.symbol} ${convertedAmount}`,
-                            paymentMethod: "Cash on Delivery"
+                    try {
+                        // Send COD order confirmation email
+                        const emailResponse = await fetch(`${BACKEND_URL}/send-order-confirmation`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                customerEmail: formData.email,
+                                orderDetails: orderDetails,
+                                customerDetails: customerDetails
+                            })
                         });
-                        router.push(`/thank-you?${params.toString()}`);
-                    } else {
-                        throw new Error("Failed to submit order details");
+
+                        const emailResult = await emailResponse.json();
+                        console.log('COD email result:', emailResult);
+
+                    } catch (emailError) {
+                        console.error('Email sending failed:', emailError);
+                        // Continue with navigation even if email fails
                     }
+                    
+                    // Navigate to thank you page for COD
+                    const params = new URLSearchParams({
+                        orderNumber: orderNumber,
+                        customerName: `${formData.firstName} ${formData.lastName}`,
+                        email: formData.email,
+                        amount: `${currentCurrency.symbol} ${convertedAmount}`,
+                        paymentMethod: "Cash on Delivery"
+                    });
+                    console.log('Navigating to thank you page with COD params:', params.toString());
+                    router.push(`/thank-you?${params.toString()}`);
                 }
             } catch (error) {
                 console.error('Submission error:', error);
@@ -304,13 +457,11 @@ export default function Checkout() {
     };
 
     return (
-        <div className="flex relative bg-white min-h-screen overflow-hidden">
-            <div className='fixed left-0 top-0 w-1/5 h-screen bg-transparent z-[999]'>
-                <Navbar />
-            </div>
-            <div className="flex-1 ml-[0%] md:ml-[20%] overflow-auto">
+        <div className="relative bg-white min-h-screen overflow-hidden">
+            <Navbar />
+            <div className="w-full overflow-auto">
 
-                <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className=" px-4">
                     <div className=" w-full">
                         {/* Product Summary */}
                         <Product />
@@ -375,18 +526,41 @@ export default function Checkout() {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Phone *
+                                        Phone * (10 digits only)
                                     </label>
                                     <input
                                         type="tel"
                                         name="phone"
                                         value={formData.phone}
                                         onChange={handleInputChange}
-                                        className={`w-full px-3 py-2 border rounded-lg ${formErrors.phone ? 'border-red-500' : 'border-gray-300'
-                                            }`}
+                                        placeholder="Enter 10-digit phone number"
+                                        className={`w-full px-3 py-2 border rounded-lg transition-all duration-300 ${
+                                            formErrors.phone || phoneError 
+                                                ? 'border-red-500 bg-red-50 text-red-700' 
+                                                : formData.phone && formData.phone.replace(/\D/g, '').length > 10
+                                                    ? 'border-red-500 bg-red-50 text-red-700'
+                                                    : 'border-gray-300'
+                                        }`}
+                                        style={{
+                                            boxShadow: (formErrors.phone || phoneError || (formData.phone && formData.phone.replace(/\D/g, '').length > 10))
+                                                ? '0 0 0 3px rgba(239, 68, 68, 0.1)' 
+                                                : 'none'
+                                        }}
                                     />
-                                    {formErrors.phone && (
-                                        <p className="text-red-500 text-xs mt-1">{formErrors.phone}</p>
+                                    {(formErrors.phone || phoneError) && (
+                                        <div className="mt-1">
+                                            <p className="text-red-500 text-xs font-medium animate-pulse">
+                                                {formErrors.phone || phoneError}
+                                            </p>
+                                            {(phoneError || (formErrors.phone && formErrors.phone.includes('exceed'))) && (
+                                                <p className="text-red-400 text-xs mt-1">
+                                                    Current length: {formData.phone.replace(/\D/g, '').length} digits
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                    {formData.phone && !formErrors.phone && !phoneError && formData.phone.replace(/\D/g, '').length === 10 && (
+                                        <p className="text-green-500 text-xs mt-1">✓ Valid phone number</p>
                                     )}
                                 </div>
                             </div>
@@ -572,19 +746,82 @@ export default function Checkout() {
 
                             {/* Total and Submit Button */}
                             <div className="pt-4 border-t border-gray-200">
-                                <div className="flex justify-between mb-4">
-                                    <span className="font-semibold">Total:</span>
-                                    <span className="font-semibold">
+                                {/* Add Quantity Selector before total */}
+                                <div className="mb-4 p-4 bg-white rounded-lg border">
+                                    <h3 className="text-lg font-semibold mb-3">Order Summary</h3>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <span className="font-medium">{product.name}</span>
+                                        <span className="font-medium">₹{product.price}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-medium">Quantity:</span>
+                                        <div className="flex items-center">
+                                            <Button
+                                                type="button"
+                                                onClick={() => handleQuantityChange('decrease')}
+                                                className="p-2 border rounded-l hover:bg-gray-100"
+                                                disabled={quantity <= 1}
+                                            >
+                                                <FiMinus className="w-4 h-4" />
+                                            </Button>
+                                            <span className="px-4 py-2 border-t border-b bg-gray-50 min-w-[60px] text-center font-medium">
+                                                {quantity}
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                onClick={() => handleQuantityChange('increase')}
+                                                className="p-2 border rounded-r hover:bg-gray-100"
+                                            >
+                                                <FiPlus className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Display submission errors */}
+                                {formErrors.submit && (
+                                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                        <p className="text-red-600 text-sm">{formErrors.submit}</p>
+                                    </div>
+                                )}
+                                
+                                {/* Display payment errors */}
+                                {formErrors.payment && (
+                                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                        <p className="text-red-600 text-sm">{formErrors.payment}</p>
+                                    </div>
+                                )}
+
+                                {/* Display phone validation warning */}
+                                {phoneError && (
+                                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                        <div className="flex items-center">
+                                            <span className="text-red-500 mr-2">⚠️</span>
+                                            <p className="text-red-600 text-sm font-medium">{phoneError}</p>
+                                        </div>
+                                        <p className="text-red-500 text-xs mt-1">Please correct your phone number to continue</p>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between mb-4 text-lg font-bold border-t pt-4">
+                                    <span>Total ({quantity} item{quantity > 1 ? 's' : ''}):</span>
+                                    <span>
                                         {currentCurrency.symbol}{(product.price * quantity * currentCurrency.rate).toFixed(2)}
                                     </span>
                                 </div>
 
                                 <Button
                                     type="submit"
-                                    className="w-full bg-[#43c3ff] hover:bg-[#43c3ff]/90 text-white py-3 rounded-lg"
-                                    disabled={isSubmitting}
+                                    className={`w-full py-3 rounded-lg transition-all duration-300 ${
+                                        isSubmitting || phoneError
+                                            ? 'bg-gray-400 cursor-not-allowed' 
+                                            : 'bg-[#43c3ff] hover:bg-[#43c3ff]/90'
+                                    } text-white`}
+                                    disabled={isSubmitting || phoneError || (formData.phone && formData.phone.replace(/\D/g, '').length > 10)}
                                 >
-                                    {isSubmitting ? 'Processing...' : 'Place Order'}
+                                    {isSubmitting ? 'Processing...' : 
+                                     phoneError ? 'Fix Phone Number to Continue' : 
+                                     `Place Order - ${currentCurrency.symbol}${(product.price * quantity * currentCurrency.rate).toFixed(2)}`}
                                 </Button>
                             </div>
                         </form>

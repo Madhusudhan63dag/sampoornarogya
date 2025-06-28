@@ -1,10 +1,6 @@
 "use client";
 import { useEffect, useRef } from 'react';
-import Matter from 'matter-js';
 import Image from 'next/image';
-import reviewImage from '../../assets/face/two.jpg'; // Add your image to assets folder
-// import one from '../../assets/face/one.avif'
-// import two from '../../assets/face/two.jpg'
 import three from '../../assets/face/three.png'
 import four from '../../assets/face/four.png'
 import five from '../../assets/face/five.jpg'
@@ -127,77 +123,10 @@ const StarRating = ({ rating, userImage, userName }) => (
 );
 
 export default function ReviewSection() {
-    const sceneRef = useRef(null);
-    const engineRef = useRef(null);
-
-    useEffect(() => {
-        const Engine = Matter.Engine,
-            Render = Matter.Render,
-            World = Matter.World,
-            Bodies = Matter.Bodies;
-
-        engineRef.current = Engine.create({
-            gravity: { x: 0, y: 0.5 }  // Reduced gravity for slower movement
-        });
-
-        const render = Render.create({
-            element: sceneRef.current,
-            engine: engineRef.current,
-            options: {
-                width: sceneRef.current.clientWidth,
-                height: 300,
-                wireframes: false,
-                background: 'transparent'
-            }
-        });
-
-        // Create bounds with rounded corners
-        const ground = Bodies.rectangle(
-            render.options.width / 2,
-            render.options.height + 30,
-            render.options.width,
-            60,
-            {
-                isStatic: true,
-                render: { fillStyle: 'transparent' }
-            }
-        );
-
-        // Create floating bubbles with brand colors
-        const bubbles = Array(8).fill().map(() => {
-            const size = Math.random() * 20 + 10;
-            return Bodies.circle(
-                Math.random() * render.options.width,
-                Math.random() * render.options.height,
-                size,
-                {
-                    restitution: 0.8,
-                    friction: 0.005,
-                    render: {
-                        fillStyle: Math.random() > 0.5 ? '#2A6177' : '#43c3ff',
-                        opacity: 0.6
-                    }
-                }
-            );
-        });
-
-        World.add(engineRef.current.world, [ground, ...bubbles]);
-
-        Engine.run(engineRef.current);
-        Render.run(render);
-
-        return () => {
-            Render.stop(render);
-            World.clear(engineRef.current.world);
-            Engine.clear(engineRef.current);
-            render.canvas.remove();
-        };
-    }, []);
-
     return (
         <div className="relative w-full md:rounded-br-[200px] rounded-br-[100px] overflow-hidden bg-black/95 py-8 md:py-16">
             <div className="absolute inset-0 z-0">
-                <div ref={sceneRef} className="w-full h-[300px]" />
+                <div className="w-full h-[300px]" />
             </div>
 
             <div className="relative z-10">

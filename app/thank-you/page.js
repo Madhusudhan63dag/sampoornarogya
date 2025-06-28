@@ -17,6 +17,7 @@ function ThankYouContent() {
         const email = searchParams.get('email');
         const amount = searchParams.get('amount');
         const paymentMethod = searchParams.get('paymentMethod');
+        const emailStatus = searchParams.get('emailStatus');
 
         if (orderNumber) {
             setOrderDetails({
@@ -24,7 +25,8 @@ function ThankYouContent() {
                 customerName,
                 email,
                 amount,
-                paymentMethod
+                paymentMethod,
+                emailStatus
             });
         }
     }, [searchParams]);
@@ -94,6 +96,26 @@ function ThankYouContent() {
                                         <p className="font-semibold text-gray-800">{new Date().toLocaleDateString()}</p>
                                     </div>
                                 </div>
+                            </div>
+                        )}
+
+                        {/* Email Status Notification */}
+                        {orderDetails && orderDetails.emailStatus && (
+                            <div className={`p-4 rounded-lg border ${
+                                orderDetails.emailStatus === 'failed' 
+                                    ? 'bg-yellow-50 border-yellow-200' 
+                                    : 'bg-blue-50 border-blue-200'
+                            } mb-6`}>
+                                <p className={`text-sm ${
+                                    orderDetails.emailStatus === 'failed' 
+                                        ? 'text-yellow-700' 
+                                        : 'text-blue-700'
+                                }`}>
+                                    {orderDetails.emailStatus === 'failed' 
+                                        ? '⚠️ Email confirmation may be delayed. Please save your order number for reference.'
+                                        : 'ℹ️ Email confirmation is being processed and will be sent shortly.'
+                                    }
+                                </p>
                             </div>
                         )}
                     </div>

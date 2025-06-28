@@ -1,8 +1,10 @@
 "use client";
 import React from 'react';
+import Image from 'next/image';
 import { FaAmazon, FaShieldAlt, FaShippingFast, FaStar } from 'react-icons/fa';
 import { Button } from "@/components/ui/button";
 import { amazonConfig } from '@/lib/amazonConfig';
+import amazon from '../../assets/amazon1.webp'
 
 export default function AmazonSection() {
     const handleBuyOnAmazon = () => {
@@ -40,6 +42,33 @@ export default function AmazonSection() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    {/* Amazon Logo and Info */}
+                    <div className="text-center lg:text-left">
+                        <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+                            <div className="flex justify-center lg:justify-start mb-6">
+                                <Image 
+                                    src={amazon} 
+                                    alt="Amazon Logo" 
+                                    width={200} 
+                                    height={100}
+                                    className="object-contain"
+                                />
+                            </div>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                                Trusted by Millions
+                            </h3>
+                            <p className="text-gray-600 mb-6">
+                                Our {amazonConfig.productTitle} is available on Amazon with thousands of satisfied customers and verified reviews.
+                            </p>
+                            <div className="flex justify-center lg:justify-end items-center gap-2 text-yellow-500">
+                                {[...Array(5)].map((_, i) => (
+                                    <FaStar key={i} className="w-5 h-5 fill-current" />
+                                ))}
+                                <span className="text-gray-600 ml-2">(500+ Reviews)</span>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Amazon Features */}
                     <div className="space-y-8">
                         {amazonFeatures.map((feature, index) => (
@@ -60,35 +89,13 @@ export default function AmazonSection() {
 
                         <div className="pt-4">
                             <Button
+                                id="amazon"
                                 onClick={handleBuyOnAmazon}
-                                className="bg-gradient-to-r from-[#FF9900] to-[#FF7A00] hover:from-[#FF7A00] hover:to-[#FF5500] text-white px-8 py-3 rounded-lg text-lg font-semibold flex items-center gap-3 transform transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                                className=" amazon bg-gradient-to-r from-[#FF9900] to-[#FF7A00] hover:from-[#FF7A00] hover:to-[#FF5500] text-white px-8 py-3 rounded-lg text-lg font-semibold flex items-center gap-3 transform transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
                             >
-                                <FaAmazon className="w-6 h-6" />
+                                <FaAmazon className="w-10 h-10" />
                                 Buy on Amazon
                             </Button>
-                        </div>
-                    </div>
-
-                    {/* Amazon Logo and Info */}
-                    <div className="text-center lg:text-right">
-                        <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-                            <div className="flex justify-center lg:justify-end mb-6">
-                                <div className="bg-gradient-to-r from-[#FF9900] to-[#FF7A00] rounded-full p-6">
-                                    <FaAmazon className="w-16 h-16 text-white" />
-                                </div>
-                            </div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                                Trusted by Millions
-                            </h3>
-                            <p className="text-gray-600 mb-6">
-                                Our {amazonConfig.productTitle} is available on Amazon with thousands of satisfied customers and verified reviews.
-                            </p>
-                            <div className="flex justify-center lg:justify-end items-center gap-2 text-yellow-500">
-                                {[...Array(5)].map((_, i) => (
-                                    <FaStar key={i} className="w-5 h-5 fill-current" />
-                                ))}
-                                <span className="text-gray-600 ml-2">(500+ Reviews)</span>
-                            </div>
                         </div>
                     </div>
                 </div>

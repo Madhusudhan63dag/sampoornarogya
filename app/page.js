@@ -1,15 +1,13 @@
 "use client";
-import { Plus, Minus } from "lucide-react"; // Add this import at the top
+import { Plus, Minus } from "lucide-react";
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation'; // Add this import
+import { useRouter } from 'next/navigation';
 import Navbar from '../components/elements/Navbar'
 import { Button } from "@/components/ui/button"
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react';
-import { useInView } from 'react-intersection-observer'; // Add this import
 import LoadingScreen from '../components/elements/LoadingScreen';
 import ReviewSection from '../components/elements/ReviewSection';
-import BenefitsTimeline from '@/components/sections/BenefitsTimeline';
 import AwardsSection from '@/components/sections/AwardsSection';
 import ComparisonTable from '@/components/sections/ComparisonTable';
 import AmazonSection from '@/components/sections/AmazonSection';
@@ -18,10 +16,19 @@ import Footer from '@/components/elements/Footer';
 import logo from './just_logo.png'
 import heroSmall from '../assets/test/1920x1281.jpg';
 import Slider from '../components/elements/Slider';
-import smallbanner from '../assets/test/1400x400.jpg';
-import smallbanner1 from '../assets/test/1400x400_1.jpg';
 import banner1 from '@/assets/5.jpg';
 import banner2 from '@/assets/4.jpg';
+import amazon from '../assets/amazon1.webp';
+
+// PR links images
+import card1 from '../assets/pr/card1.webp';
+import card2 from '../assets/pr/card2.webp';
+import card3 from '../assets/pr/card3.webp';
+import card4 from '../assets/pr/card4.webp';
+import card5 from '../assets/pr/card5.webp';
+import card6 from '../assets/pr/card6.webp';
+import card7 from '../assets/pr/card7.webp';
+
 
 
 
@@ -34,7 +41,7 @@ const DigestiveSystem = dynamic(() => import('../components/elements/DigestiveSy
 });
 
 export default function Home() {
-  const router = useRouter(); // Add this line
+  const router = useRouter();
   const videoRef = useRef(null);
   const leftTextRef = useRef(null);
   const rightTextRef = useRef(null);
@@ -42,12 +49,15 @@ export default function Home() {
   const lastScrollY = useRef(0);
   const initialScrollPosition = useRef(null);
   const videoSectionReached = useRef(false);
-
-  // Add gradient animation state
+  const fadeInUp = "transition-all duration-700 ease-out";
+  const fadeInUpVisible = "translate-y-0 opacity-100";
+  const fadeInUpHidden = "translate-y-10 opacity-0";
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [gradientPosition, setGradientPosition] = useState(0);
-
-  // Add this new state for FAQ
   const [openFaq, setOpenFaq] = useState(null);
+  const locomotiveScrollRef = useRef(null);
+
   const faqData = [
     {
       question: "What are the main benefits of Sampoorna Arogya?",
@@ -75,34 +85,6 @@ export default function Home() {
     }
   ];
 
-
-  // Add scroll instance ref
-  const locomotiveScrollRef = useRef(null);
-
-  // Add these refs for animations
-  const [featureRef, featureInView] = useInView({
-    triggerOnce: true,
-    threshold: 0.2
-  });
-
-  const [benefitsRef, benefitsInView] = useInView({
-    triggerOnce: true,
-    threshold: 0.2
-  });
-
-  const [productRef, productInView] = useInView({
-    triggerOnce: true,
-    threshold: 0.2
-  });
-
-  // Add CSS classes for animations
-  const fadeInUp = "transition-all duration-700 ease-out";
-  const fadeInUpVisible = "translate-y-0 opacity-100";
-  const fadeInUpHidden = "translate-y-10 opacity-0";
-
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const interval = setInterval(() => {
       setGradientPosition((prev) => (prev + 1) % 360);
@@ -110,65 +92,6 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, []);
-
-  // useEffect(() => {
-  //   if (typeof window === "undefined") return;
-
-  //   // Cleanup function to destroy previous scroll instance
-  //   if (locomotiveScrollRef.current) {
-  //     locomotiveScrollRef.current.destroy();
-  //   }
-
-  //   (async () => {
-  //     const LocomotiveScroll = (await import('locomotive-scroll')).default;
-  //     locomotiveScrollRef.current = new LocomotiveScroll({
-  //       el: document.querySelector("[data-scroll-container]"),
-  //       smooth: true,
-  //       multiplier: 0.7,
-  //       lerp: 0.07,
-  //       resetNativeScroll: true,
-  //       reloadOnContextChange: true
-  //     });
-
-  //     // Reset scroll position
-  //     window.scrollTo(0, 0);
-  //   })();
-
-  //   return () => {
-  //     if (locomotiveScrollRef.current) {
-  //       // locomotiveScrollRef.current.destroy();
-  //       locomotiveScrollRef.current = null;
-  //     }
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   if (!videoRef.current) return;
-
-  //   // Load YouTube API
-  //   const tag = document.createElement('script');
-  //   tag.src = "https://www.youtube.com/iframe_api";
-  //   const firstScriptTag = document.getElementsByTagName('script')[0];
-  //   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-  //   let player;
-
-  //   window.onYouTubeIframeAPIReady = () => {
-  //     player = new window.YT.Player(videoRef.current, {
-  //       events: {
-  //         onStateChange: (event) => {
-  //           setIsVideoPlaying(event.data === window.YT.PlayerState.PLAYING);
-  //         }
-  //       }
-  //     });
-  //   };
-
-  //   return () => {
-  //     if (player) {
-  //       player.destroy();
-  //     }
-  //   };
-  // }, []);
 
   useEffect(() => {
     // Function to check if all images are loaded
@@ -205,31 +128,63 @@ export default function Home() {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // const handleVideoControl = () => {
-  //   const iframe = videoRef.current;
-  //   const player = iframe.contentWindow;
+  // Add PR slider state
+  const [currentPrSlide, setCurrentPrSlide] = useState(0);
+  const prSliderRef = useRef(null);
 
-  //   if (isVideoPlaying) {
-  //     player.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-  //   } else {
-  //     player.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-  //   }
-  // };
+  // PR data with professional links
+  const prData = [
+    {
+      image: card1,
+      title: "Dailyhunt",
+    },
+    {
+      image: card2,
+      title: "Republic NewsIndia",
+    },
+    {
+      image: card3,
+      title: "Flipboard",
+    },
+    {
+      image: card4,
+      title: "The Indian Bulletin",
+    },
+    {
+      image: card5,
+      title: "RD Times.in",
+    },
+    {
+      image: card6,
+      title: "Abhyuday Times",
+    },
+    {
+      image: card7,
+      title: "Indian Sentinel",
+    }
+  ];
+
+  // Auto-play PR slider
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPrSlide((prev) => (prev + 1) % prData.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [prData.length]);
 
   return (
     <>
       <LoadingScreen isVisible={isLoading} />
-      <div className="flex relative overflow-x-hidden min-h-screen">
-        {/* Navbar container */}
-        <div className='fixed left-0 top-0 md:w-1/5 w-full h-auto md:h-screen bg-transparent z-[999]'>
-          <Navbar />
-        </div>
+      <div className="relative overflow-x-hidden min-h-screen">
+        {/* Navbar */}
+        <Navbar />
 
         {/* Main Content */}
-        <div className="flex-1 md:ml-[21%] ml-0 mt-[60px] md:mt-0 relative" data-scroll-container>
+        <div className="w-full relative" data-scroll-container>
           <main className="w-full flex flex-col">
+
             {/* Hero Section */}
-            <section className='relative w-full h-[30vh] md:h-screen'>
+            <section className='relative w-full h-[50vh] md:h-screen pt-16'>
               {/* Background Image Container */}
               <div className="absolute inset-0 w-full h-full">
                 <picture className="w-full h-full block">
@@ -250,32 +205,9 @@ export default function Home() {
                     priority
                     sizes="(max-width: 767px) 480px, 1920px"
                     quality={85}
+                    className="object-cover"
                   />
                 </picture>
-              </div>
-
-              {/* Content Container */}
-              <div className='relative z-10 w-full h-full flex flex-col max-w-[1440px] mx-auto px-4 md:px-8'>
-                {/* Header */}
-                <header className='w-full flex justify-between items-center py-4 md:py-8'>
-                  <div className='flex items-center'>
-                    <Image
-                      src={logo}
-                      alt="Sampoorna Arogya Logo"
-                      className='w-12 md:w-32 hidden md:block h-auto relative z-10'
-                      priority
-                    />
-                  </div>
-                  {/* Navigation - Desktop only */}
-                  <nav className='flex items-center'>
-                    <Button
-                      onClick={() => router.push('/product')}
-                      className="bg-[#6CFC6C] hover:bg-[#43c3ff] text-black px-4 py-2 md:px-10 md:py-7 rounded-full transition-all duration-300 text-sm md:text-xl whitespace-nowrap"
-                    >
-                      Order Now
-                    </Button>
-                  </nav>
-                </header>
               </div>
             </section>
 
@@ -297,21 +229,19 @@ export default function Home() {
               />
             </div>
 
-
             <DigestiveSystem />
-
 
             {/* Swiper Section - Updated to fix overlapping */}
             <Slider />
             
-            <div ref={productRef} className='w-full p-4 md:p-6'>
+            <div className='w-full p-4 md:p-6'>
               <div
                 className={`flex flex-col md:flex-row justify-center gap-6 md:gap-10 items-center ${fadeInUp}`}
-                style={{
-                  transform: productInView ? 'translateY(0)' : 'translateY(50px)',
-                  opacity: productInView ? 1 : 0,
-                  transitionDelay: '200ms'
-                }}
+                // style={{
+                //   transform: productInView ? 'translateY(0)' : 'translateY(50px)',
+                //   opacity: productInView ? 1 : 0,
+                //   transitionDelay: '200ms'
+                // }}
               >
                 <div className='w-full md:w-1/2'>
                   <Image src={banner1} alt="Sampoorn Arogya Syrup" className='w-full rounded-lg' />
@@ -324,11 +254,6 @@ export default function Home() {
               </div>
               <div
                 className={`flex flex-col md:flex-row justify-center gap-6 md:gap-10 items-center mt-10 ${fadeInUp}`}
-                style={{
-                  transform: productInView ? 'translateY(0)' : 'translateY(50px)',
-                  opacity: productInView ? 1 : 0,
-                  transitionDelay: '400ms'
-                }}
               >
                 <div className='w-full md:w-1/2'>
                   <h1 className='text-3xl md:text-5xl font-bold'>Ayurvedic Wellness for All</h1>
@@ -343,35 +268,58 @@ export default function Home() {
               </div>
             </div>
 
-
-
-
-
-
-
+            {/* Professional PR Images Slider Section */}
+            <section className="w-full bg-gradient-to-br from-slate-50 to-blue-50 ">
+              <div className="">
+                {/* Main PR Slider */}
+                <div className="relative mb-4">
+                  <div className="overflow-hidden">
+                    <div 
+                      ref={prSliderRef}
+                      className="flex transition-transform duration-700 ease-in-out"
+                      style={{ transform: `translateX(-${currentPrSlide * 100}%)` }}
+                    >
+                      {prData.map((item, index) => (
+                        <div key={index} className="w-full flex-shrink-0">
+                          <div className="relative bg-white">
+                            <div className="flex flex-col md:flex-row h-full">
+                              {/* Image Section */}
+                              <div className="w-full md:w-3/5 relative">
+                                <Image
+                                  src={item.image}
+                                  alt={item.title}
+                                  fill
+                                  className="object-contain"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
+                              </div>
+                              
+                              {/* Content Section */}
+                              <div className="w-full md:w-2/5 p-8 md:p-12 flex flex-col justify-center bg-white">
+                                <h3 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+                                  {item.title}
+                                </h3>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  </div>
+              </div>
+            </section>
 
             {/* Add this before the FAQ section */}
             <div className="w-full">
               <ReviewSection />
             </div>
 
-            {/* Add these sections before the FAQ section */}
-            <div
-              ref={benefitsRef}
-              className={`${fadeInUp} bg-white`}
-              style={{
-                transform: benefitsInView ? 'translateY(0)' : 'translateY(50px)',
-                opacity: benefitsInView ? 1 : 0,
-              }}>
-              <BenefitsTimeline />
-            </div>
-
-
 
             <ComparisonTable />
 
             {/* Amazon Section */}
-            <AmazonSection />
+            <AmazonSection amazon={amazon} />
 
             {/* FAQ Section - Updated for mobile */}
             <div className="w-full bg-[#8de8f825] px-4 md:px-20 py-8 md:py-16 flex-none">

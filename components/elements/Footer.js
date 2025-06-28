@@ -6,8 +6,7 @@ import visa from '@/assets/visa.svg';
 import mastercard from '@/assets/mastercard.svg';
 import paypal from '@/assets/paypal.svg';
 import discover from '@/assets/discover.svg';
-import { Facebook, Instagram, Youtube, CreditCard } from 'lucide-react';
-import { FaAmazonPay } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaYoutube, FaCreditCard, FaAmazonPay } from 'react-icons/fa';
 
 export default function Footer() {
     const router = useRouter();
@@ -40,7 +39,7 @@ export default function Footer() {
                                 rel="noopener noreferrer"
                                 className="text-gray-600 hover:text-[#43c3ff] transition-colors duration-200"
                             >
-                                <Facebook className="w-5 h-5" />
+                                <FaFacebook className="w-5 h-5" />
                             </a>
                             <a
                                 href="https://www.instagram.com/sampoornarogya/"
@@ -48,7 +47,7 @@ export default function Footer() {
                                 rel="noopener noreferrer"
                                 className="text-gray-600 hover:text-[#43c3ff] transition-colors duration-200"
                             >
-                                <Instagram className="w-5 h-5" />
+                                <FaInstagram className="w-5 h-5" />
                             </a>
                             <a
                                 href="https://www.youtube.com/@SampoornArogya"
@@ -56,7 +55,7 @@ export default function Footer() {
                                 rel="noopener noreferrer"
                                 className="text-gray-600 hover:text-[#43c3ff] transition-colors duration-200"
                             >
-                                <Youtube className="w-5 h-5" />
+                                <FaYoutube className="w-5 h-5" />
                             </a>
                         </div>
                     </div>
