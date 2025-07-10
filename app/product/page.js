@@ -13,7 +13,7 @@ import razorpay from '../../assets/paypal.svg';
 import logo from '../just_logo.png'
 import Product from './product';
 import AwardsSection from '@/components/sections/AwardsSection';
-
+ 
 
 const PAYMENT_IMAGES = {
     visa: "../assets/visa.svg",
@@ -77,6 +77,7 @@ export default function Checkout() {
         const baseAmount = product.price * quantity;
         const converted = (baseAmount * currentCurrency.rate).toFixed(2);
         setConvertedAmount(converted);
+        console.log('Total amount updated:', converted, 'for quantity:', quantity);
     }, [quantity, currentCurrency, product.price]);
 
     useEffect(() => {
@@ -118,25 +119,71 @@ export default function Checkout() {
 
     // Add this useEffect after the existing useEffects to initialize quantity from product selection
     useEffect(() => {
-        // Check if quantity was selected from the product component
-        const selectedQuantity = localStorage.getItem('selectedQuantity');
-        if (selectedQuantity) {
-            const parsedQuantity = parseInt(selectedQuantity, 10);
-            if (parsedQuantity > 0) {
-                setQuantity(parsedQuantity);
+        // Function to check and load quantity from multiple sources
+        const loadQuantityFromSources = () => {
+            console.log('Loading quantity from sources...');
+            
+            // Check localStorage first
+            const selectedQuantity = localStorage.getItem('selectedQuantity');
+            console.log('localStorage selectedQuantity:', selectedQuantity);
+            
+            if (selectedQuantity) {
+                const parsedQuantity = parseInt(selectedQuantity, 10);
+                if (parsedQuantity > 0) {
+                    console.log('Setting quantity from localStorage:', parsedQuantity);
+                    setQuantity(parsedQuantity);
+                    return; // Exit early if localStorage has the value
+                }
             }
-            // Clear the stored quantity after using it
-            localStorage.removeItem('selectedQuantity');
-        }
-    }, []);
 
-    const handleQuantityChange = (action) => {
-        if (action === 'increase') {
-            setQuantity(prev => prev + 1);
-        } else if (action === 'decrease' && quantity > 1) {
-            setQuantity(prev => prev - 1);
-        }
-    };
+            // Check URL parameters as backup
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlQuantity = urlParams.get('qty');
+            console.log('URL quantity parameter:', urlQuantity);
+            
+            if (urlQuantity) {
+                const parsedQuantity = parseInt(urlQuantity, 10);
+                if (parsedQuantity > 0) {
+                    console.log('Setting quantity from URL:', parsedQuantity);
+                    setQuantity(parsedQuantity);
+                }
+            }
+        };
+
+        // Load immediately on mount
+        loadQuantityFromSources();
+
+        // Listen for custom quantity update events from Product component
+        const handleQuantityUpdate = (event) => {
+            const newQuantity = event.detail.quantity;
+            console.log('Received quantity update event:', newQuantity);
+            if (newQuantity && newQuantity > 0) {
+                setQuantity(newQuantity);
+                console.log('Updated quantity state to:', newQuantity);
+            }
+        };
+
+        // Also listen for storage events (when another tab updates localStorage)
+        const handleStorageChange = (e) => {
+            if (e.key === 'selectedQuantity' && e.newValue) {
+                const parsedQuantity = parseInt(e.newValue, 10);
+                if (parsedQuantity > 0) {
+                    console.log('Setting quantity from storage event:', parsedQuantity);
+                    setQuantity(parsedQuantity);
+                }
+            }
+        };
+
+        // Add event listeners
+        window.addEventListener('quantityUpdated', handleQuantityUpdate);
+        window.addEventListener('storage', handleStorageChange);
+
+        // Cleanup
+        return () => {
+            window.removeEventListener('quantityUpdated', handleQuantityUpdate);
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -205,6 +252,63 @@ export default function Checkout() {
         if (!formData.townCity) errors.townCity = 'City is required';
         if (!formData.paymentMode) errors.paymentMode = 'Please select a payment method';
         return errors;
+    };
+
+    // Function to send abandoned order email
+    const sendAbandonedOrderEmail = async () => {
+        try {
+            // Generate a unique order ID for abandoned order
+            const abandonedOrderNumber = `SA-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            
+            // Calculate total amount based on quantity
+            const pricePerUnit = 3990;
+            const totalAmount = pricePerUnit * quantity;
+            
+            // Prepare order details for the API
+            const orderDetails = {
+                orderNumber: abandonedOrderNumber,
+                productName: 'Sampoorna Arogya Digestive Health Supplement',
+                quantity: quantity,
+                totalAmount: totalAmount,
+                currency: '₹'
+            };
+
+            // Prepare customer details
+            const customerDetails = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                phone: formData.phone,
+                address: formData.streetAddress,
+                apartment: formData.apartment,
+                city: formData.townCity,
+                country: formData.country
+            };
+            
+            // Send customer details and order info to abandoned cart API
+            const response = await fetch(`${BACKEND_URL}/send-abandoned-order-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    customerEmail: formData.email,
+                    orderDetails: orderDetails,
+                    customerDetails: customerDetails
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log('Abandoned order email sent successfully');
+            } else {
+                console.error('Failed to send abandoned order email:', result.message);
+            }
+            
+        } catch (error) {
+            console.error('Error sending abandoned order email:', error);
+        }
     };
 
     const handleRazorpayPayment = async () => {
@@ -346,7 +450,9 @@ export default function Checkout() {
                 },
                 modal: {
                     ondismiss: function () {
-                        console.log('Razorpay modal dismissed');
+                        console.log('Razorpay modal dismissed - sending abandoned order email');
+                        // Send abandoned order email when payment is cancelled
+                        sendAbandonedOrderEmail();
                         setIsSubmitting(false);
                     }
                 },
@@ -459,9 +565,9 @@ export default function Checkout() {
     return (
         <div className="relative bg-white min-h-screen overflow-hidden">
             <Navbar />
-            <div className="w-full overflow-auto">
+            <div className="w-full overflow-x-hidden">
 
-                <div className=" px-4">
+                <div className="">
                     <div className=" w-full">
                         {/* Product Summary */}
                         <Product />
@@ -746,38 +852,6 @@ export default function Checkout() {
 
                             {/* Total and Submit Button */}
                             <div className="pt-4 border-t border-gray-200">
-                                {/* Add Quantity Selector before total */}
-                                <div className="mb-4 p-4 bg-white rounded-lg border">
-                                    <h3 className="text-lg font-semibold mb-3">Order Summary</h3>
-                                    <div className="flex items-center justify-between mb-4">
-                                        <span className="font-medium">{product.name}</span>
-                                        <span className="font-medium">₹{product.price}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-medium">Quantity:</span>
-                                        <div className="flex items-center">
-                                            <Button
-                                                type="button"
-                                                onClick={() => handleQuantityChange('decrease')}
-                                                className="p-2 border rounded-l hover:bg-gray-100"
-                                                disabled={quantity <= 1}
-                                            >
-                                                <FiMinus className="w-4 h-4" />
-                                            </Button>
-                                            <span className="px-4 py-2 border-t border-b bg-gray-50 min-w-[60px] text-center font-medium">
-                                                {quantity}
-                                            </span>
-                                            <Button
-                                                type="button"
-                                                onClick={() => handleQuantityChange('increase')}
-                                                className="p-2 border rounded-r hover:bg-gray-100"
-                                            >
-                                                <FiPlus className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 {/* Display submission errors */}
                                 {formErrors.submit && (
                                     <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -803,11 +877,27 @@ export default function Checkout() {
                                     </div>
                                 )}
 
-                                <div className="flex justify-between mb-4 text-lg font-bold border-t pt-4">
-                                    <span>Total ({quantity} item{quantity > 1 ? 's' : ''}):</span>
-                                    <span>
-                                        {currentCurrency.symbol}{(product.price * quantity * currentCurrency.rate).toFixed(2)}
-                                    </span>
+                                <div className="bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-lg border-2 border-blue-200 mb-4">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <span className="text-lg font-bold text-gray-800">
+                                                Total ({quantity} item{quantity > 1 ? 's' : ''}):
+                                            </span>
+                                            <div className="text-sm text-gray-600">
+                                                {currentCurrency.symbol}{product.price.toFixed(2)} x {quantity}
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-2xl font-bold text-green-600">
+                                                {currentCurrency.symbol}{(product.price * quantity * currentCurrency.rate).toFixed(2)}
+                                            </span>
+                                            {currentCurrency.currency !== 'INR' && (
+                                                <div className="text-sm text-gray-500">
+                                                    (₹{(product.price * quantity).toFixed(2)})
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <Button

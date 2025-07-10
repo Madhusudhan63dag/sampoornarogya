@@ -4,6 +4,12 @@ import { HiMenu, HiX } from 'react-icons/hi';
 import Image from 'next/image';
 import logo from '@/app/just_logo.png';
 import LoadingScreen from './LoadingScreen';
+import icon1 from '../../assets/icon1.png';
+import icon2 from '../../assets/icon2.png';
+import icon3 from '../../assets/icon3.png';
+import icon4 from '../../assets/icon4.png';
+import icon5 from '../../assets/icon5.webp'; 
+
 
 const Navbar = () => {
     const router = useRouter();
@@ -37,26 +43,37 @@ const Navbar = () => {
                             <div className="ml-10 flex items-baseline space-x-8">
                                 <a
                                     href="/"
-                                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 `}
+                                    className={`px-3 flex flex-col items-center py-2 rounded-md text-sm font-medium transition-colors duration-200 `}
                                 >
+                                    <Image src={icon1} alt="Home" className="w-8 inline-block mr-2" />
                                     Home
                                 </a>
                                 <a
                                     href="/product"
-                                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 `}
+                                    className={`px-3 flex flex-col items-center py-2 rounded-md text-sm font-medium transition-colors duration-200 `}
                                 >
+                                    <Image src={icon4} alt="Products" className="w-8 inline-block mr-2" />
                                     Products
                                 </a>
                                 <a
                                     href="/about"
-                                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 `}
+                                    className={`px-3 flex flex-col items-center py-2 rounded-md text-sm font-medium transition-colors duration-200 `}
                                 >
+                                    <Image src={icon3} alt="About" className="w-8 inline-block mr-2" />
                                     About
                                 </a>
                                 <a
-                                    href="/contact"
-                                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 `}
+                                    href="/blog"
+                                    className={`px-3 flex flex-col items-center py-2 rounded-md text-sm font-medium transition-colors duration-200 `}
                                 >
+                                    <Image src={icon5} alt="Blog" className="w-8 inline-block mr-2" />
+                                    Blog
+                                </a>
+                                <a
+                                    href="/contact"
+                                    className={`px-3 flex flex-col items-center py-2 rounded-md text-sm font-medium transition-colors duration-200 `}
+                                >
+                                    <Image src={icon2} alt="Contact" className="w-8 inline-block mr-2" />
                                     Contact Us
                                 </a>
                             </div>
@@ -86,24 +103,35 @@ const Navbar = () => {
                                 href="/"
                                 className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 `}
                             >
+                                <Image src={icon1} alt="Home" className="w-8 inline-block mr-2" />
                                 Home
                             </a>
                             <a
                                 href="/product"
                                 className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 `}
                             >
+                                <Image src={icon4} alt="Products" className="w-8 inline-block mr-2" />
                                 Products
                             </a>
                             <a
                                 href="/about"
                                 className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 `}
                             >
+                                <Image src={icon3} alt="About" className="w-8 inline-block mr-2" />
                                 About
+                            </a>
+                            <a
+                                href="/blog"
+                                className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 `}
+                            >
+                                <Image src={icon5} alt="Blog" className="w-8 inline-block mr-2" />
+                                Blog
                             </a>
                             <a
                                 href="/contact"
                                 className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 `}
                             >
+                                <Image src={icon2} alt="Contact" className="w-8 inline-block mr-2" />
                                 Contact Us
                             </a>
                         </div>

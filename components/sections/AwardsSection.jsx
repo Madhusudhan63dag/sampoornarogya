@@ -46,7 +46,7 @@ export default function AwardsSection() {
   const slideContent = [...awards, ...awards];
 
   return (
-    <div className="py-16 bg-[#8de8f825] overflow-hidden">
+    <div className="py-16 overflow-hidden">
       <h2 className="text-3xl md:text-5xl text-center mb-16 font-bold text-[#2A6177]">
         Awards & Certifications
       </h2>
@@ -56,7 +56,7 @@ export default function AwardsSection() {
           {slideContent.map((award, index) => (
             <div
               key={index}
-              className="flex-none w-[300px] mx-4 bg-white rounded-xl p-6 text-center"
+              className="flex-none w-[300px] mx-4 text-center"
               style={{ animation: 'none' }}
             >
               <div className={`mx-auto mb-4 relative ${award.customSize ? 'w-20 h-16 mb-16' : 'w-24 h-24'}`}>
@@ -67,8 +67,6 @@ export default function AwardsSection() {
                   className="object-contain"
                 />
               </div>
-              <h3 className="text-xl font-bold text-[#2A6177] mb-2">{award.title}</h3>
-              <p className="text-gray-600">{award.description}</p>
             </div>
           ))}
         </div>

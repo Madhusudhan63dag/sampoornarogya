@@ -22,21 +22,21 @@ export default function Contact() {
         {
             icon: <Phone className="w-6 h-6" />,
             title: "Phone",
-            details: ["+91 903-052-8333"],
-            action: "tel:+919908526444",
+            details: ["+91 939 227 7389"],
+            action: "tel:+919392277389",
             isPhone: true
         },
         {
             icon: <Mail className="w-6 h-6" />,
             title: "Email",
-            details: ["israelitesshopping171@gmail.com"],
-            action: "mailto:israelitesshopping171@gmail.com",
+            details: ["customercareproductcenter@gmail.com"],
+            action: "mailto:customercareproductcenter@gmail.com",
             isEmail: true
         },
         {
             icon: <MapPin className="w-6 h-6" />,
             title: "Location",
-            details: [" Begumpet, Hyderabad, Telangana 500016"],
+            details: [" Hyderabad, Telangana 500016"],
             action: null
         },
         {

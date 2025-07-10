@@ -49,51 +49,6 @@ const reviews = [
         location: "Bangalore",
         date: "2 months ago",
         image: four // Use local image
-    },
-    {
-        name: "Jane Smith",
-        review: "Been using for 3 months, noticed great improvement.",
-        rating: 4.5,
-        designation: "Regular Customer",
-        location: "Mumbai",
-        date: "4 month ago",
-        image: five // Use local image
-    },
-    {
-        name: "Mike Johnson",
-        review: "Natural and effective solution.",
-        rating: 5,
-        designation: "Health Expert",
-        location: "Delhi",
-        date: "5 months ago",
-        image: six // Use local image
-    },
-    {
-        name: "John Doe",
-        review: "Amazing product! Really helped with my digestion.",
-        rating: 5,
-        designation: "Verified Buyer",
-        location: "Bangalore",
-        date: "8 months ago",
-        image: seven // Use local image
-    },
-    {
-        name: "Jane Smith",
-        review: "Been using for 3 months, noticed great improvement.",
-        rating: 4.5,
-        designation: "Regular Customer",
-        location: "Mumbai",
-        date: "8 month ago",
-        image: eight // Use local image
-    },
-    {
-        name: "Mike Johnson",
-        review: "Natural and effective solution.",
-        rating: 5,
-        designation: "Health Expert",
-        location: "Delhi",
-        date: "10 months ago",
-        image: nine // Use local image
     }
 ];
 
@@ -124,19 +79,19 @@ const StarRating = ({ rating, userImage, userName }) => (
 
 export default function ReviewSection() {
     return (
-        <div className="relative w-full md:rounded-br-[200px] rounded-br-[100px] overflow-hidden bg-black/95 py-8 md:py-16">
+        <div className="relative w-full md:rounded-br-[200px] rounded-br-[100px] overflow-hidden bg-white py-8 md:py-16">
             <div className="absolute inset-0 z-0">
                 <div className="w-full h-[300px]" />
             </div>
 
             <div className="relative z-10">
-                <h2 className="text-2xl md:text-5xl text-center mb-8 md:mb-16 font-bold text-white px-4">
+                <h2 className="text-2xl md:text-5xl text-center mb-8 md:mb-16 font-bold text-black px-4">
                     What Our Customers Say
                 </h2>
 
                 <div className="flex flex-col md:flex-row gap-4 md:gap-8 px-4">
                     {/* Image Section */}
-                    <div className="md:w-2/5 hidden md:block relative min-h-[200px] md:min-h-[400px] rounded-xl md:rounded-2xl overflow-hidden">
+                    <div className="md:w-2/6 hidden md:block relative min-h-[200px] md:min-h-[400px] rounded-xl md:rounded-2xl overflow-hidden">
                         <Image
                             src={ten_two}
                             alt="Customer Review Showcase"
@@ -151,29 +106,29 @@ export default function ReviewSection() {
                     </div>
 
                     {/* Reviews Grid */}
-                    <div className="md:w-3/5 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                    <div className="md:w-5/6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
                         {reviews.slice(0, 6).map((review, index) => ( // Reduced to 6 reviews for mobile
                             <div
                                 key={index}
-                                className="bg-white/10 backdrop-blur-sm rounded-lg md:rounded-xl p-4 md:p-6 border border-white/10
-                                         hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1"
+                                className="bg-black/10 backdrop-blur-sm rounded-lg md:rounded-xl p-4 md:p-6 border border-black/10
+                                         hover:bg-black/20 transition-all duration-300 transform hover:-translate-y-1"
                             >
                                 <div className="flex flex-col h-full">
                                     <div className="mb-3 md:mb-4">
                                         <StarRating rating={review.rating} userImage={review.image} userName={review.name} />
                                     </div>
 
-                                    <p className="text-white/90 flex-grow mb-3 md:mb-4 text-base md:text-lg font-medium">
+                                    <p className="text-black flex-grow mb-3 md:mb-4 text-base md:text-lg font-medium">
                                         "{review.review}"
                                     </p>
 
-                                    <div className="border-t border-white/10 pt-3 md:pt-4">
+                                    <div className="border-t border-black/10 pt-3 md:pt-4">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <h4 className="font-semibold text-sm md:text-base text-white">{review.name}</h4>
-                                                <p className="text-xs md:text-sm text-white/60">{review.designation}</p>
+                                                <h4 className="font-semibold text-sm md:text-base text-black">{review.name}</h4>
+                                                <p className="text-xs md:text-sm text-black/60">{review.designation}</p>
                                             </div>
-                                            <div className="text-right text-xs md:text-sm text-white/60">
+                                            <div className="text-right text-xs md:text-sm text-black/60">
                                                 <p>{review.location}</p>
                                                 <p>{review.date}</p>
                                             </div>

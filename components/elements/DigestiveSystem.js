@@ -73,7 +73,7 @@ const DigestiveSystem = () => {
   }
 
   return (
-    <div className="relative w-full rounded-b-[70px] z-10 pt-10 md:pt-20 bg-gradient-to-r from-[#988967] via-[#F7E9CC] to-[#AB9C7A]">
+    <div className="relative w-full z-10 pt-10 md:pt-20 ">
       <div className="w-full max-w-[1920px] mx-auto px-2 md:pl-8">
         <div className="flex flex-col md:flex-row items-start gap-8 md:gap-16"> {/* Reduced gap */}
           {/* Left side - Interactive Diagram */}

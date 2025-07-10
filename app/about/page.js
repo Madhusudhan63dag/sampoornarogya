@@ -57,12 +57,12 @@ export default function About() {
                     <div className="max-w-7xl mx-auto mb-16 md:mb-24">
                         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
                             <div className="w-full md:w-1/2">
-                                <div className="relative h-[600px] md:h-[500px] rounded-2xl overflow-hidden">
+                                <div className="relative h-[600px] md:h-[600px] rounded-2xl overflow-hidden">
                                     <Image
                                         src={img1}
                                         alt="Sampoorn Arogya Syrup - Natural Digestive Health Solution"
                                         fill
-                                        className="object-cover"
+                                        className=""
                                     />
                                 </div>
                             </div>
@@ -97,12 +97,12 @@ export default function About() {
                                 </div>
                             </div>
                             <div className="w-full md:w-1/2">
-                                <div className="relative h-[600px] md:h-[500px] rounded-2xl overflow-hidden">
+                                <div className="relative h-[600px] md:h-[600px] rounded-2xl overflow-hidden">
                                     <Image
                                         src={img2}
                                         alt="Sampoorn Arogya Tablets - Herbal Digestive Supplement"
                                         fill
-                                        className="object-cover"
+                                        className="object"
                                     />
                                 </div>
                             </div>

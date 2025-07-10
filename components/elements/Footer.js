@@ -82,10 +82,11 @@ export default function Footer() {
                         <h4 className="text-base md:text-md font-semibold mb-3">Contact</h4>
                         <ul className="space-y-1">
                             <li className="text-xs md:text-xs text-gray-600 break-words">
-                                Email: israelitesshopping171@gmail.com
+                                Email: customercareproductcenter@gmail.com
+
                             </li>
                             <li className="text-xs md:text-sm font-mono text-gray-600">
-                                Phone: +91 903-052-8333
+                                Phone: +91 939 227 7389
                             </li>
                             <li className="text-xs md:text-sm text-gray-600">
                                 Location: Begumpet, Hyderabad, Telangana 500016

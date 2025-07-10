@@ -10,24 +10,38 @@ import LoadingScreen from '../components/elements/LoadingScreen';
 import ReviewSection from '../components/elements/ReviewSection';
 import AwardsSection from '@/components/sections/AwardsSection';
 import ComparisonTable from '@/components/sections/ComparisonTable';
+import BlogSection from '@/components/sections/BlogSection';
 import AmazonSection from '@/components/sections/AmazonSection';
 import FloatingAmazonButton from '@/components/elements/FloatingAmazonButton';
 import Footer from '@/components/elements/Footer';
-import logo from './just_logo.png'
-import heroSmall from '../assets/test/1920x1281.jpg';
-import Slider from '../components/elements/Slider';
+import heroSmall from '../assets/test/1920x1281.webp';
 import banner1 from '@/assets/5.jpg';
 import banner2 from '@/assets/4.jpg';
 import amazon from '../assets/amazon1.webp';
 
 // PR links images
-import card1 from '../assets/pr/card1.webp';
-import card2 from '../assets/pr/card2.webp';
-import card3 from '../assets/pr/card3.webp';
-import card4 from '../assets/pr/card4.webp';
-import card5 from '../assets/pr/card5.webp';
-import card6 from '../assets/pr/card6.webp';
-import card7 from '../assets/pr/card7.webp';
+import card1 from '../assets/pr/1.webp';
+import card2 from '../assets/pr/2.webp';
+import card3 from '../assets/pr/3.webp';
+import card4 from '../assets/pr/4.webp';
+import card5 from '../assets/pr/5.webp';
+import card6 from '../assets/pr/6.webp';
+import card7 from '../assets/pr/7.webp';
+import card8 from '../assets/pr/8.webp';
+import card9 from '../assets/pr/9.webp';
+import card10 from '../assets/pr/10.webp';
+import card11 from '../assets/pr/11.webp';
+import card12 from '../assets/pr/12.webp';
+import card13 from '../assets/pr/13.webp';
+
+import img1 from '@/assets/ing/download.jpeg';
+import img2 from '@/assets/ing/download1.jpeg';
+import img3 from '@/assets/ing/download2.jpeg';
+import img5 from '@/assets/ing/download4.jpeg';
+import img6 from '@/assets/ing/download5.jpeg';
+import img7 from '@/assets/ing/download6.jpeg';
+import img8 from '@/assets/ing/download7.jpeg';
+import img9 from '@/assets/ing/download8.jpeg';
 
 
 
@@ -36,7 +50,7 @@ import card7 from '../assets/pr/card7.webp';
 const DigestiveSystem = dynamic(() => import('../components/elements/DigestiveSystem'), {
   ssr: false,
   loading: () => (
-    <div className="w-full min-h-screen rounded-b-[70px] bg-gradient-to-r from-[#988967] via-[#F7E9CC] to-[#AB9C7A] animate-pulse" />
+    <div className="w-full min-h-screen animate-pulse" />
   )
 });
 
@@ -136,41 +150,105 @@ export default function Home() {
   const prData = [
     {
       image: card1,
-      title: "Dailyhunt",
     },
     {
       image: card2,
-      title: "Republic NewsIndia",
     },
     {
       image: card3,
-      title: "Flipboard",
     },
     {
       image: card4,
-      title: "The Indian Bulletin",
     },
     {
       image: card5,
-      title: "RD Times.in",
     },
     {
       image: card6,
-      title: "Abhyuday Times",
     },
     {
       image: card7,
-      title: "Indian Sentinel",
+    },
+    {
+      image: card8,
+    },
+    {
+      image: card9,
+    },
+    {
+      image: card10,
+    },
+    {
+      image: card11,
+    },
+    {
+      image: card12,
+    },
+    {
+      image: card13,
     }
   ];
 
+  const ingredients = [
+    {
+        image: { src: img1 },
+        title: "Amla",
+        description: "A rich source of Vitamin C, known for boosting immunity, improving skin health, and reducing stress.",
+        alt: "Amla fruit illustration"
+    },
+    {
+        image: { src: img2 },
+        title: "Chitrak",
+        description: "An Ayurvedic herb that supports digestive health, aids detoxification, and boosts metabolism.",
+        alt: "Chitrak root illustration"
+    },
+    {
+        image: { src: img3 },
+        title: "Nagarmotha",
+        description: "An aromatic herb that enhances digestion, balances metabolism, and supports overall well-being.",
+        alt: "Nagarmotha plant illustration"
+    },
+    {
+        image: { src: img5 },
+        title: "Harad",
+        description: "A traditional digestive aid that cleanses the body, rejuvenates cells, and promotes longevity.",
+        alt: "Harad fruit illustration"
+    },
+    {
+        image: { src: img6 },
+        title: "Giloy",
+        description: "A versatile herb known for its anti-inflammatory, immunity-boosting, and detoxifying properties.",
+        alt: "Giloy stem illustration"
+    },
+    {
+        image: { src: img7 },
+        title: "Nisoth",
+        description: "A potent herb that supports digestive cleansing, reduces bloating, and promotes healthy metabolism.",
+        alt: "Nisoth root illustration"
+    },
+    {
+        image: { src: img8 },
+        title: "Adrak",
+        description: "A powerful spice with anti-inflammatory properties, known for aiding digestion and relieving nausea.",
+        alt: "Ginger root illustration"
+    },
+    {
+        image: { src: img9 },
+        title: "Jeera",
+        description: "A fragrant spice that aids in digestion, reduces acidity, and promotes overall gut health.",
+        alt: "Cumin seed illustration"
+    },
+  ];
+
+  const slideContent = [...prData, ...prData]
+
   // Auto-play PR slider
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentPrSlide((prev) => (prev + 1) % prData.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [prData.length]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setCurrentPrSlide((prev) => (prev + 1) % prData.length);
+  //   }, 4000);
+  //   return () => clearInterval(interval);
+  // }, [prData.length]);
 
   return (
     <>
@@ -216,33 +294,10 @@ export default function Home() {
               <AwardsSection />
             </div>
 
-            {/* Video Section - Simplified without effects */}
-            <div className='w-full bg-black'>
-              <iframe
-                // ref={videoRef}
-                src="https://www.youtube.com/embed/xSMxe1Igfv4?mute=0&controls=1&rel=0"
-                title="Sampoorn Arogya Video"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className='w-full h-[50vh] md:h-[80vh]'
-              />
-            </div>
-
             <DigestiveSystem />
 
-            {/* Swiper Section - Updated to fix overlapping */}
-            <Slider />
-            
-            <div className='w-full p-4 md:p-6'>
-              <div
-                className={`flex flex-col md:flex-row justify-center gap-6 md:gap-10 items-center ${fadeInUp}`}
-                // style={{
-                //   transform: productInView ? 'translateY(0)' : 'translateY(50px)',
-                //   opacity: productInView ? 1 : 0,
-                //   transitionDelay: '200ms'
-                // }}
-              >
+            {/* <div className='w-full p-4 md:p-6'>
+              <div className={`flex flex-col md:flex-row justify-center gap-6 md:gap-10 items-center ${fadeInUp}`}>
                 <div className='w-full md:w-1/2'>
                   <Image src={banner1} alt="Sampoorn Arogya Syrup" className='w-full rounded-lg' />
                 </div>
@@ -252,61 +307,56 @@ export default function Home() {
                   <Button className="bg-[#cf1cff] px-6 py-3 md:px-9 md:py-5 text-base md:text-xl w-full md:w-auto"><a href="/product"> Buy Now</a></Button>
                 </div>
               </div>
-              <div
-                className={`flex flex-col md:flex-row justify-center gap-6 md:gap-10 items-center mt-10 ${fadeInUp}`}
-              >
+            </div> */}
+
+            <div className='w-full p-4 md:p-6'>
+              <div className={`flex flex-col md:flex-row justify-center gap-6 md:gap-10 items-center ${fadeInUp}`}>
                 <div className='w-full md:w-1/2'>
-                  <h1 className='text-3xl md:text-5xl font-bold'>Ayurvedic Wellness for All</h1>
-                  <p className="text-sm md:text-lg">
-                    Sampoorn Arogya delivers a comprehensive Ayurvedic approach to promote healthy digestion and support gut wellness. Our carefully crafted syrups and tablets, featuring potent ingredients like Triphala, Jeera, and Ajwain, offer natural relief from digestive discomforts such as bloating, indigestion, and constipation. These formulations not only aid in detoxifying the body and improving metabolism but also boost your immunity, ensuring overall health and vitality. Trust Sampoorn Arogya for a gentle, effective, and holistic solution to your digestive needs.
-                  </p>
-                  <Button className="bg-[#cf1cff] px-9 py-5 text-xl"><a href="/product"> Buy Now</a></Button>
+                  <Image src={banner1} alt="Sampoorn Arogya Syrup" className='w-full rounded-lg' />
                 </div>
-                <div className='w-full md:w-1/2'>
-                  <Image src={banner2} alt="Sampoorn Arogya Tablets" className='w-full' />
+                <div className='w-full md:w-1/2 space-y-4'>
+                  <h1 className='text-2xl md:text-5xl font-bold'>Boost Your Digestion Naturally</h1>
+                  <p className='text-sm md:text-lg'>
+                    Sampoorn Arogya provides holistic Ayurvedic remedies to support optimal digestion and enhance your overall well-being.
+                    Embrace the natural path to health with our specially crafted syrups and tablets.
+                  </p>
+                  <Button className="bg-[#cf1cff] px-6 py-3 md:px-9 md:py-5 text-base md:text-xl w-full md:w-auto">
+                    <a href="/product">Buy Now</a>
+                  </Button>
+              {/* Ingredients List */}
+              <h1 className='text-xl md:text-2xl font-bold mt-10'>Key Ingredients</h1>
+              <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                {ingredients.slice(0, 8).map((item, index) => (
+                  <div key={index} className="flex flex-col items-center text-center">
+                    <Image
+                      src={item.image.src}
+                      alt={item.alt}
+                      className="w-16 h-16 md:w-20 md:h-20 object-contain mb-2"
+                    />
+                    <span className="text-sm md:text-base font-medium">{item.title}</span>
+                  </div>
+                ))}
+              </div>
                 </div>
               </div>
+
             </div>
 
+
             {/* Professional PR Images Slider Section */}
-            <section className="w-full bg-gradient-to-br from-slate-50 to-blue-50 ">
+            <section className="w-full">
               <div className="">
-                {/* Main PR Slider */}
-                <div className="relative mb-4">
-                  <div className="overflow-hidden">
-                    <div 
-                      ref={prSliderRef}
-                      className="flex transition-transform duration-700 ease-in-out"
-                      style={{ transform: `translateX(-${currentPrSlide * 100}%)` }}
-                    >
-                      {prData.map((item, index) => (
-                        <div key={index} className="w-full flex-shrink-0">
-                          <div className="relative bg-white">
-                            <div className="flex flex-col md:flex-row h-full">
-                              {/* Image Section */}
-                              <div className="w-full md:w-3/5 relative">
-                                <Image
-                                  src={item.image}
-                                  alt={item.title}
-                                  fill
-                                  className="object-contain"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
-                              </div>
-                              
-                              {/* Content Section */}
-                              <div className="w-full md:w-2/5 p-8 md:p-12 flex flex-col justify-center bg-white">
-                                <h3 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-                                  {item.title}
-                                </h3>
-                              </div>
-                            </div>
-                          </div>
+                <div className="relative w-full">
+                  <div className="flex animate-slide">
+                    {slideContent.map((award, index) => (
+                      <div key={index} className="flex-none w-[300px] mx-4 text-center" style={{ animation: 'none' }}>
+                        <div className={`mx-auto mb-4 relative ${award.customSize ? 'w-24 h-16 mb-16' : 'w-28 h-28'}`}>
+                          <Image src={award.image} alt={`${award.title} - ${award.description}`} fill className="object-contain" />
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
-                  </div>
+                </div>
               </div>
             </section>
 
@@ -315,11 +365,15 @@ export default function Home() {
               <ReviewSection />
             </div>
 
-
-            <ComparisonTable />
+            {/* Blog Section */}
+            <div>
+              <BlogSection />
+            </div>
 
             {/* Amazon Section */}
-            <AmazonSection amazon={amazon} />
+            <div>
+              <AmazonSection amazon={amazon} />
+            </div>
 
             {/* FAQ Section - Updated for mobile */}
             <div className="w-full bg-[#8de8f825] px-4 md:px-20 py-8 md:py-16 flex-none">
@@ -359,12 +413,14 @@ export default function Home() {
             </div>
 
             {/* Footer Section */}
-            <Footer />
+            <div>
+              <Footer />
+            </div>
           </main>
         </div>
 
         {/* Floating Amazon Button */}
-        <FloatingAmazonButton />
+        {/* <FloatingAmazonButton /> */}
       </div>
     </>
   )
