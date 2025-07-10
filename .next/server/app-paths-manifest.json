@@ -1,4 +1,20 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/robots.txt/route": "app/robots.txt/route.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
+  "/about/page": "app/about/page.js",
+  "/blog/page": "app/blog/page.js",
+  "/contact/page": "app/contact/page.js",
+  "/cancel/page": "app/cancel/page.js",
   "/page": "app/page.js",
-  "/contact/page": "app/contact/page.js"
+  "/private/page": "app/private/page.js",
+  "/product/page": "app/product/page.js",
+  "/return/page": "app/return/page.js",
+  "/sampurna/page": "app/sampurna/page.js",
+  "/shipping/page": "app/shipping/page.js",
+  "/sitemap/page": "app/sitemap/page.js",
+  "/thank-you/page": "app/thank-you/page.js",
+  "/term/page": "app/term/page.js",
+  "/blog/[slug]/page": "app/blog/[slug]/page.js"
 }
